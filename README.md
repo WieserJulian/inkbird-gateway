@@ -57,6 +57,7 @@ Implemented:
 - Config flow
 - Tuya token + signed request handling
 - Device filtering for IBS-M1 / IBS-M2 profiles
+- Friendly name normalization (Chinese-only Tuya names fall back to German-friendly labels)
 - Data update coordinator
 - Channel parsing from `ch_0..ch_9` payloads with scalar fallback DPs
 - Sensors for temperature, humidity, and battery

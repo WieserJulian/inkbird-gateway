@@ -180,6 +180,26 @@ class TestInkbirdGatewayApiParser(unittest.TestCase):
         self.assertTrue(self.api._is_supported_device(by_category))
         self.assertFalse(self.api._is_supported_device(unsupported))
 
+    def test_parse_payload_uses_german_fallback_name_for_cjk(self) -> None:
+        payload = {
+            "name": "温湿度传感器",
+            "product_name": "IBS-M2",
+            "status": [],
+            "status_range": [],
+        }
+        parsed = self.api._parse_device_payload("device-1234", payload)
+        self.assertEqual(parsed.name, "IBS-M2 Gerät 1234")
+
+    def test_parse_payload_uses_generic_fallback_when_name_and_model_cjk(self) -> None:
+        payload = {
+            "name": "温湿度传感器",
+            "product_name": "网关设备",
+            "status": [],
+            "status_range": [],
+        }
+        parsed = self.api._parse_device_payload("abcdef123456", payload)
+        self.assertEqual(parsed.name, "Inkbird Gerät 123456")
+
 
 class TestInkbirdGatewayApiAsync(unittest.IsolatedAsyncioTestCase):
     """Test async methods independent from network I/O."""
@@ -218,6 +238,30 @@ class TestInkbirdGatewayApiAsync(unittest.IsolatedAsyncioTestCase):
         api._async_ensure_token = AsyncMock()  # type: ignore[method-assign]
         with self.assertRaises(InkbirdGatewayApiAuthError):
             await api.async_get_supported_devices()
+
+    async def test_async_get_supported_devices_applies_name_fallback(self) -> None:
+        api = InkbirdGatewayApi(
+            session=None,  # type: ignore[arg-type]
+            access_id="id",
+            access_secret="secret",
+            endpoint="https://openapi.tuyaus.com",
+        )
+        api._uid = "user-1"
+        api._async_ensure_token = AsyncMock()  # type: ignore[method-assign]
+        api._async_request = AsyncMock(  # type: ignore[method-assign]
+            return_value={
+                "result": [
+                    {
+                        "id": "112233445566",
+                        "name": "温湿度",
+                        "product_name": "IBS-M1",
+                        "category": "wsdcg",
+                    }
+                ]
+            }
+        )
+        devices = await api.async_get_supported_devices()
+        self.assertEqual(devices[0]["name"], "IBS-M1 Gerät 5566")
 
 
 if __name__ == "__main__":

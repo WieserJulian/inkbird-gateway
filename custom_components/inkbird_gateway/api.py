@@ -24,6 +24,32 @@ _TOKEN_GRACE_SECONDS = 60
 _AUTH_ERROR_CODES = {"1010", "1011", "1012", "1106"}
 
 
+def _has_cjk_chars(value: str) -> bool:
+    """Return True when text contains CJK characters."""
+    return any(
+        "\u4e00" <= char <= "\u9fff"
+        or "\u3400" <= char <= "\u4dbf"
+        or "\uf900" <= char <= "\ufaff"
+        for char in value
+    )
+
+
+def _friendly_device_name(device_id: str, name: str, model: str) -> str:
+    """Return a user-friendly name with German-friendly fallback."""
+    cleaned_name = name.strip()
+    cleaned_model = model.strip()
+
+    if cleaned_name and not _has_cjk_chars(cleaned_name):
+        return cleaned_name
+
+    if cleaned_model and not _has_cjk_chars(cleaned_model):
+        suffix = device_id[-4:] if len(device_id) >= 4 else device_id
+        return f"{cleaned_model} Gerät {suffix}".strip()
+
+    suffix = device_id[-6:] if len(device_id) >= 6 else device_id
+    return f"Inkbird Gerät {suffix}".strip()
+
+
 class InkbirdGatewayApiError(Exception):
     """Base API error."""
 
@@ -89,13 +115,14 @@ class InkbirdGatewayApi:
             device_id = str(device.get("id", "")).strip()
             if not device_id:
                 continue
-            name = str(device.get("name") or device_id)
+            raw_name = str(device.get("name") or "")
             model = str(
                 device.get("product_name")
                 or device.get("model")
                 or device.get("category")
                 or "Inkbird"
             )
+            name = _friendly_device_name(device_id, raw_name, model)
             devices.append({"id": device_id, "name": name, "model": model})
 
         return devices
@@ -283,7 +310,7 @@ class InkbirdGatewayApi:
             )
 
         model = str(payload.get("product_name") or payload.get("model") or "Inkbird Gateway")
-        name = str(payload.get("name") or model or device_id)
+        name = _friendly_device_name(device_id, str(payload.get("name") or ""), model)
 
         return InkbirdDeviceData(
             device_id=device_id,
