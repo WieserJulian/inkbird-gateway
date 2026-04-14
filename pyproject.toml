@@ -1,0 +1,9 @@
+[project]
+name = "inkbird-gateway-ha"
+version = "0.1.0"
+description = "Home Assistant custom integration for Inkbird IBS-M1/IBS-M2 gateways"
+requires-python = ">=3.12"
+
+[tool.unittest]
+testpaths = ["tests"]
+

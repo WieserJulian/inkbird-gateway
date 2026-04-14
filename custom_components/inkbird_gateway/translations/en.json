@@ -1,0 +1,35 @@
+{
+  "config": {
+    "flow_title": "Inkbird Gateway",
+    "step": {
+      "user": {
+        "title": "Connect to Tuya OpenAPI",
+        "description": "Provide your Tuya Cloud credentials used by your Inkbird devices.",
+        "data": {
+          "endpoint": "Tuya API endpoint",
+          "access_id": "Access ID",
+          "access_secret": "Access Secret",
+          "manual_device_ids": "Manual device IDs (comma separated, optional)",
+          "scan_interval": "Polling interval (seconds)"
+        }
+      },
+      "select_devices": {
+        "title": "Select Inkbird devices",
+        "description": "Choose the discovered IBS-M1 / IBS-M2 devices to import.",
+        "data": {
+          "device_ids": "Devices"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Tuya API.",
+      "invalid_auth": "Invalid credentials.",
+      "no_supported_devices": "No supported IBS-M1 or IBS-M2 devices found.",
+      "invalid_device_ids": "One or more manual device IDs are invalid."
+    },
+    "abort": {
+      "already_configured": "This account is already configured."
+    }
+  }
+}
+

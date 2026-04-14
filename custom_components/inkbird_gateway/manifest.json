@@ -1,0 +1,13 @@
+{
+  "domain": "inkbird_gateway",
+  "name": "Inkbird Gateway",
+  "config_flow": true,
+  "documentation": "https://developers.home-assistant.io/docs/creating_component_index/",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "version": "0.1.0",
+  "loggers": [
+    "custom_components.inkbird_gateway"
+  ]
+}
+
